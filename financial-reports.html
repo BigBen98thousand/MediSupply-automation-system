@@ -9,13 +9,13 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #2c5530; -primary-light: #4a7856; --secondary: #f8f9fa;
+            --primary: #2c5530; --primary-light: #4a7856; --secondary: #f8f9fa;
             --accent: #e63946; --text: #333; --text-light: #6c757d; --border: #dee2e6;
             --success: #28a745; --warning: #ffc107; --danger: #dc3545;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
         
-        /* Updated Navigation with Hamburger */
+        /* Navigation */
         .navbar {
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -41,12 +41,14 @@
         .hamburger span { width: 25px; height: 3px; background: var(--primary); margin: 3px 0; transition: 0.3s; border-radius: 2px; }
         
         .main-content { max-width: 1400px; margin: 5rem auto 2rem; padding: 0 1rem; }
-        .report-section { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
-        .filters { background: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+        .filters { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
         .filter-group { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .filter-group select, .filter-group input { padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        .report-section { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
         table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
         th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         th { background: var(--secondary); font-weight: 600; }
@@ -57,6 +59,13 @@
         .summary-card { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
         .summary-card h3 { color: var(--text-light); font-size: 0.8rem; margin-bottom: 0.5rem; }
         .summary-card .value { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 8px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
         
         /* Mobile Styles */
         @media (max-width: 768px) {
@@ -76,6 +85,7 @@
         @media (max-width: 480px) {
             .nav-logo h1 { font-size: 1rem; }
             .nav-link { padding: 0.8rem; font-size: 0.9rem; }
+            .main-content { padding: 0 0.5rem; }
             .report-summary { grid-template-columns: 1fr; }
         }
     </style>
@@ -115,24 +125,51 @@
                 </select>
                 <input type="month" id="report-month" value="">
                 <button class="btn btn-primary" onclick="loadFinancialReports()">Generate Report</button>
-                <button class="btn" onclick="printReport()" style="background: var(--secondary);">Print Report</button>
+                <button class="btn btn-secondary" onclick="printReport()">Print Report</button>
             </div>
         </div>
 
         <div class="report-summary" id="report-summary">
-            <div class="summary-card"><h3>Select Report Type</h3><div class="value">-</div></div>
-            <div class="summary-card"><h3>And Click Generate</h3><div class="value">-</div></div>
-            <div class="summary-card"><h3>To View Financial</h3><div class="value">-</div></div>
-            <div class="summary-card"><h3>Reports</h3><div class="value">-</div></div>
+            <!-- Summary cards will be loaded here -->
         </div>
 
         <div class="report-section">
-            <h3 id="report-title">Select a Report Type</h3>
-            <div id="balance-sheet-report" style="display: none;"></div>
-            <div id="income-statement-report" style="display: none;"></div>
-            <div id="cash-flow-report" style="display: none;"></div>
+            <h3 id="report-title">Balance Sheet</h3>
+            <div id="balance-sheet-report">
+                <!-- Balance sheet will be loaded here -->
+            </div>
+            <div id="income-statement-report" style="display: none;">
+                <!-- Income statement will be loaded here -->
+            </div>
+            <div id="cash-flow-report" style="display: none;">
+                <!-- Cash flow statement will be loaded here -->
+            </div>
         </div>
     </main>
+
+    <!-- Reset Data Modal -->
+    <div id="reset-modal" class="modal">
+        <div class="modal-content">
+            <span style="float: right; font-size: 1.5rem; cursor: pointer;" onclick="hideResetModal()">&times;</span>
+            <h3 style="color: var(--danger);">⚠️ Reset All Data</h3>
+            <p><strong>Warning:</strong> This will permanently delete ALL your data including:</p>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                <li>All expenses and sales records</li>
+                <li>All journal entries and ledger data</li>
+                <li>All inventory items</li>
+                <li>All financial reports</li>
+            </ul>
+            <p>This action cannot be undone!</p>
+            <div class="form-group">
+                <label for="confirm-reset">Type "RESET" to confirm:</label>
+                <input type="text" id="confirm-reset" placeholder="Type RESET here">
+            </div>
+            <div class="form-actions" style="margin-top: 1rem; text-align: right;">
+                <button type="button" class="btn-secondary" onclick="hideResetModal()">Cancel</button>
+                <button type="button" class="btn-danger" onclick="confirmReset()" id="reset-btn" disabled>Reset All Data</button>
+            </div>
+        </div>
+    </div>
 
     <script src="firebase-config.js"></script>
     <script>
@@ -155,9 +192,17 @@
                 });
             });
 
-            // Set default month and load initial report
+            // Load initial data
             setDefaultMonth();
             loadFinancialReports();
+
+            // Add reset button
+            addResetButton();
+
+            // Add reset confirmation input listener
+            document.getElementById('confirm-reset').addEventListener('input', function() {
+                document.getElementById('reset-btn').disabled = this.value !== 'RESET';
+            });
         });
 
         function setDefaultMonth() {
@@ -178,269 +223,290 @@
 
             if (reportType === 'balance-sheet') {
                 loadBalanceSheet();
+                document.getElementById('balance-sheet-report').style.display = 'block';
+                document.getElementById('report-title').textContent = 'Balance Sheet - As of ' + new Date().toLocaleDateString();
             } else if (reportType === 'income-statement') {
                 loadIncomeStatement(reportMonth);
+                document.getElementById('income-statement-report').style.display = 'block';
+                document.getElementById('report-title').textContent = 'Income Statement - ' + new Date(reportMonth + '-01').toLocaleDateString('en', {year: 'numeric', month: 'long'});
             } else if (reportType === 'cash-flow') {
                 loadCashFlowStatement(reportMonth);
+                document.getElementById('cash-flow-report').style.display = 'block';
+                document.getElementById('report-title').textContent = 'Cash Flow Statement - ' + new Date(reportMonth + '-01').toLocaleDateString('en', {year: 'numeric', month: 'long'});
             }
         }
 
-        function loadBalanceSheet() {
-            document.getElementById('report-title').textContent = 'Balance Sheet - As of ' + new Date().toLocaleDateString();
-            document.getElementById('balance-sheet-report').style.display = 'block';
+        async function loadBalanceSheet() {
+            try {
+                // Get cash account
+                const cashDoc = await db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('1001').get();
+                const capitalDoc = await db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('3001').get();
+                
+                let cashBalance = 0;
+                let capitalBalance = 0;
 
-            let totalAssets = 0;
-            let totalLiabilities = 0;
-            let totalEquity = 0;
+                if (cashDoc.exists) {
+                    cashBalance = cashDoc.data().balance || 0;
+                }
 
-            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
-                .get()
-                .then(snapshot => {
-                    const assets = [];
-                    const liabilities = [];
-                    const equity = [];
-                    let revenueTotal = 0;
-                    let expenseTotal = 0;
+                if (capitalDoc.exists) {
+                    capitalBalance = capitalDoc.data().balance || 0;
+                }
 
-                    snapshot.forEach(doc => {
-                        const account = doc.data();
-                        if (account.type === 'asset') {
-                            assets.push(account);
-                            totalAssets += account.balance || 0;
-                        } else if (account.type === 'liability') {
-                            liabilities.push(account);
-                            totalLiabilities += account.balance || 0;
-                        } else if (account.type === 'equity') {
-                            equity.push(account);
-                            totalEquity += account.balance || 0;
-                        } else if (account.type === 'revenue') {
-                            revenueTotal += account.balance || 0;
-                        } else if (account.type === 'expense') {
-                            expenseTotal += account.balance || 0;
+                // Calculate revenue and expenses from journal entries for net income
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').get();
+                let totalRevenue = 0;
+                let totalExpenses = 0;
+
+                journalSnapshot.forEach(doc => {
+                    const entry = doc.data();
+                    entry.lineItems.forEach(item => {
+                        if (item.accountType === 'revenue') {
+                            totalRevenue += item.credit || 0;
+                        } else if (item.accountType === 'expense') {
+                            totalExpenses += item.debit || 0;
                         }
                     });
-
-                    const netIncome = revenueTotal - expenseTotal;
-                    const totalEquityWithIncome = totalEquity + netIncome;
-
-                    // Update summary
-                    document.getElementById('report-summary').innerHTML = 
-                        '<div class="summary-card"><h3>Total Assets</h3><div class="value">₦' + totalAssets.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Total Liabilities</h3><div class="value">₦' + totalLiabilities.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Total Equity</h3><div class="value">₦' + totalEquityWithIncome.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Net Income</h3><div class="value ' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</div></div>';
-
-                    // Build balance sheet HTML
-                    let balanceSheetHTML = '<div style="overflow-x: auto;"><table><tr><th>Assets</th><th class="amount">Amount</th></tr>';
-                    
-                    assets.forEach(account => {
-                        if (account.balance !== 0) {
-                            balanceSheetHTML += '<tr><td>' + account.name + '</td><td class="amount">₦' + (account.balance || 0).toLocaleString() + '</td></tr>';
-                        }
-                    });
-                    
-                    balanceSheetHTML += '<tr><td><strong>Total Assets</strong></td><td class="amount"><strong>₦' + totalAssets.toLocaleString() + '</strong></td></tr>';
-                    
-                    balanceSheetHTML += '</table><br><table><tr><th>Liabilities & Equity</th><th class="amount">Amount</th></tr>';
-                    
-                    liabilities.forEach(account => {
-                        if (account.balance !== 0) {
-                            balanceSheetHTML += '<tr><td>' + account.name + '</td><td class="amount">₦' + (account.balance || 0).toLocaleString() + '</td></tr>';
-                        }
-                    });
-                    
-                    balanceSheetHTML += '<tr><td><strong>Total Liabilities</strong></td><td class="amount"><strong>₦' + totalLiabilities.toLocaleString() + '</strong></td></tr>';
-                    balanceSheetHTML += '<tr><td><strong>Equity</strong></td><td class="amount"></td></tr>';
-                    
-                    equity.forEach(account => {
-                        if (account.balance !== 0) {
-                            balanceSheetHTML += '<tr><td>' + account.name + '</td><td class="amount">₦' + (account.balance || 0).toLocaleString() + '</td></tr>';
-                        }
-                    });
-                    
-                    balanceSheetHTML += '<tr><td>Retained Earnings (Net Income)</td><td class="amount">₦' + netIncome.toLocaleString() + '</td></tr>';
-                    balanceSheetHTML += '<tr><td><strong>Total Equity</strong></td><td class="amount"><strong>₦' + totalEquityWithIncome.toLocaleString() + '</strong></td></tr>';
-                    balanceSheetHTML += '<tr><td><strong>Total Liabilities & Equity</strong></td><td class="amount"><strong>₦' + (totalLiabilities + totalEquityWithIncome).toLocaleString() + '</strong></td></tr>';
-                    
-                    balanceSheetHTML += '</table></div>';
-                    
-                    const equationBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquityWithIncome)) < 0.01;
-                    balanceSheetHTML += '<div style="margin-top: 1rem; padding: 1rem; background: ' + (equationBalanced ? '#d4edda' : '#f8d7da') + '; color: ' + (equationBalanced ? '#155724' : '#721c24') + '; border-radius: 4px; text-align: center; font-weight: bold;">' +
-                        'Accounting Equation: Assets = Liabilities + Equity → ' + 
-                        totalAssets.toLocaleString() + ' = ' + totalLiabilities.toLocaleString() + ' + ' + totalEquityWithIncome.toLocaleString() + 
-                        ' → ' + (equationBalanced ? 'BALANCED ✓' : 'UNBALANCED ✗') + '</div>';
-
-                    document.getElementById('balance-sheet-report').innerHTML = balanceSheetHTML;
-                })
-                .catch(error => {
-                    console.error('Error loading balance sheet:', error);
-                    document.getElementById('balance-sheet-report').innerHTML = '<p style="color: var(--danger);">Error loading balance sheet: ' + error.message + '</p>';
                 });
+
+                const netIncome = totalRevenue - totalExpenses;
+                const totalEquity = capitalBalance + netIncome;
+                const totalAssets = cashBalance;
+                const totalLiabilities = 0; // Assuming no liabilities for simplicity
+
+                // Update summary
+                document.getElementById('report-summary').innerHTML = 
+                    '<div class="summary-card"><h3>Total Assets</h3><div class="value">₦' + totalAssets.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Total Liabilities</h3><div class="value">₦' + totalLiabilities.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Total Equity</h3><div class="value">₦' + totalEquity.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Net Income</h3><div class="value ' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</div></div>';
+
+                // Build balance sheet HTML
+                let balanceSheetHTML = '<table><tr><th>Assets</th><th class="amount">Amount</th></tr>';
+                balanceSheetHTML += '<tr><td>Cash</td><td class="amount">₦' + cashBalance.toLocaleString() + '</td></tr>';
+                balanceSheetHTML += '<tr><td><strong>Total Assets</strong></td><td class="amount"><strong>₦' + totalAssets.toLocaleString() + '</strong></td></tr>';
+                
+                balanceSheetHTML += '</table><table><tr><th>Liabilities & Equity</th><th class="amount">Amount</th></tr>';
+                balanceSheetHTML += '<tr><td><strong>Liabilities</strong></td><td class="amount"></td></tr>';
+                balanceSheetHTML += '<tr><td>No liabilities recorded</td><td class="amount">₦0</td></tr>';
+                balanceSheetHTML += '<tr><td><strong>Total Liabilities</strong></td><td class="amount"><strong>₦' + totalLiabilities.toLocaleString() + '</strong></td></tr>';
+                
+                balanceSheetHTML += '<tr><td><strong>Equity</strong></td><td class="amount"></td></tr>';
+                balanceSheetHTML += '<tr><td>Owner\'s Capital</td><td class="amount">₦' + capitalBalance.toLocaleString() + '</td></tr>';
+                balanceSheetHTML += '<tr><td>Retained Earnings (Net Income)</td><td class="amount">₦' + netIncome.toLocaleString() + '</td></tr>';
+                balanceSheetHTML += '<tr><td><strong>Total Equity</strong></td><td class="amount"><strong>₦' + totalEquity.toLocaleString() + '</strong></td></tr>';
+                
+                balanceSheetHTML += '<tr><td><strong>Total Liabilities & Equity</strong></td><td class="amount"><strong>₦' + (totalLiabilities + totalEquity).toLocaleString() + '</strong></td></tr>';
+                balanceSheetHTML += '</table>';
+                
+                const equationBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 0.01;
+                balanceSheetHTML += '<div style="margin-top: 1rem; padding: 1rem; background: ' + (equationBalanced ? '#d4edda' : '#f8d7da') + '; color: ' + (equationBalanced ? '#155724' : '#721c24') + '; border-radius: 4px; text-align: center; font-weight: bold;">' +
+                    'Accounting Equation: ' + (equationBalanced ? 'BALANCED ✓' : 'UNBALANCED ✗') + '</div>';
+
+                document.getElementById('balance-sheet-report').innerHTML = balanceSheetHTML;
+            } catch (error) {
+                console.error('Error loading balance sheet:', error);
+                document.getElementById('balance-sheet-report').innerHTML = '<p style="color: var(--danger); text-align: center;">Error loading balance sheet. Please reset your data.</p>';
+            }
         }
 
-        function loadIncomeStatement(month) {
-            const [year, monthNum] = month.split('-');
-            const startDate = new Date(year, monthNum - 1, 1);
-            const endDate = new Date(year, monthNum, 0);
-            endDate.setHours(23, 59, 59, 999);
+        async function loadIncomeStatement(month) {
+            try {
+                const [year, monthNum] = month.split('-');
+                const startDate = new Date(year, monthNum - 1, 1);
+                const endDate = new Date(year, monthNum, 0);
+                endDate.setHours(23, 59, 59, 999);
 
-            document.getElementById('report-title').textContent = 'Income Statement - ' + new Date(startDate).toLocaleDateString('en', {year: 'numeric', month: 'long'});
-            document.getElementById('income-statement-report').style.display = 'block';
+                let totalRevenue = 0;
+                let totalExpenses = 0;
 
-            let totalRevenue = 0;
-            let totalCOGS = 0;
-            let totalExpenses = 0;
+                // Calculate revenue from invoices
+                const invoiceSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('invoices')
+                    .where('date', '>=', startDate)
+                    .where('date', '<=', endDate)
+                    .get();
 
-            // Calculate revenue from invoices
-            db.collection('companies').doc(COMPANY_ID).collection('invoices')
-                .where('date', '>=', startDate)
-                .where('date', '<=', endDate)
-                .get()
-                .then(invoiceSnapshot => {
-                    invoiceSnapshot.forEach(doc => {
-                        totalRevenue += doc.data().totalAmount || 0;
-                    });
-
-                    // Calculate expenses from journal entries
-                    return db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
-                        .where('date', '>=', startDate)
-                        .where('date', '<=', endDate)
-                        .get();
-                })
-                .then(journalSnapshot => {
-                    journalSnapshot.forEach(doc => {
-                        const entry = doc.data();
-                        entry.lineItems.forEach(item => {
-                            if (item.accountType === 'expense') {
-                                if (item.accountCode === '5001') { // COGS
-                                    totalCOGS += item.amount;
-                                } else {
-                                    totalExpenses += item.amount;
-                                }
-                            }
-                        });
-                    });
-
-                    const grossProfit = totalRevenue - totalCOGS;
-                    const operatingIncome = grossProfit - totalExpenses;
-                    const netIncome = operatingIncome;
-
-                    // Update summary
-                    document.getElementById('report-summary').innerHTML = 
-                        '<div class="summary-card"><h3>Total Revenue</h3><div class="value">₦' + totalRevenue.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Gross Profit</h3><div class="value ' + (grossProfit >= 0 ? 'positive' : 'negative') + '">₦' + grossProfit.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Operating Income</h3><div class="value ' + (operatingIncome >= 0 ? 'positive' : 'negative') + '">₦' + operatingIncome.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Net Income</h3><div class="value ' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</div></div>';
-
-                    // Build income statement HTML
-                    let incomeHTML = '<div style="overflow-x: auto;"><table>';
-                    incomeHTML += '<tr><td><strong>Revenue</strong></td><td class="amount"></td></tr>';
-                    incomeHTML += '<tr><td>Medical Supplies Sales</td><td class="amount">₦' + totalRevenue.toLocaleString() + '</td></tr>';
-                    incomeHTML += '<tr><td><strong>Total Revenue</strong></td><td class="amount"><strong>₦' + totalRevenue.toLocaleString() + '</strong></td></tr>';
-                    
-                    incomeHTML += '<tr><td><strong>Cost of Goods Sold</strong></td><td class="amount"></td></tr>';
-                    incomeHTML += '<tr><td>Cost of Medical Supplies</td><td class="amount">₦' + totalCOGS.toLocaleString() + '</td></tr>';
-                    incomeHTML += '<tr><td><strong>Total COGS</strong></td><td class="amount"><strong>₦' + totalCOGS.toLocaleString() + '</strong></td></tr>';
-                    
-                    incomeHTML += '<tr><td><strong>Gross Profit</strong></td><td class="amount"><strong>₦' + grossProfit.toLocaleString() + '</strong></td></tr>';
-                    
-                    incomeHTML += '<tr><td><strong>Operating Expenses</strong></td><td class="amount"></td></tr>';
-                    incomeHTML += '<tr><td>All Operating Expenses</td><td class="amount">₦' + totalExpenses.toLocaleString() + '</td></tr>';
-                    incomeHTML += '<tr><td><strong>Total Operating Expenses</strong></td><td class="amount"><strong>₦' + totalExpenses.toLocaleString() + '</strong></td></tr>';
-                    
-                    incomeHTML += '<tr><td><strong>Net Income</strong></td><td class="amount"><strong class="' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</strong></td></tr>';
-                    incomeHTML += '</table></div>';
-
-                    document.getElementById('income-statement-report').innerHTML = incomeHTML;
-                })
-                .catch(error => {
-                    console.error('Error loading income statement:', error);
-                    document.getElementById('income-statement-report').innerHTML = '<p style="color: var(--danger);">Error loading income statement: ' + error.message + '</p>';
+                invoiceSnapshot.forEach(doc => {
+                    totalRevenue += doc.data().totalAmount || 0;
                 });
+
+                // Calculate expenses from journal entries
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                    .where('date', '>=', startDate)
+                    .where('date', '<=', endDate)
+                    .get();
+
+                journalSnapshot.forEach(doc => {
+                    const entry = doc.data();
+                    entry.lineItems.forEach(item => {
+                        if (item.accountType === 'expense') {
+                            totalExpenses += item.amount || 0;
+                        }
+                    });
+                });
+
+                const netIncome = totalRevenue - totalExpenses;
+
+                // Update summary
+                document.getElementById('report-summary').innerHTML = 
+                    '<div class="summary-card"><h3>Total Revenue</h3><div class="value">₦' + totalRevenue.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Total Expenses</h3><div class="value">₦' + totalExpenses.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Net Income</h3><div class="value ' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</div></div>';
+
+                // Build income statement HTML
+                let incomeHTML = '<table>';
+                incomeHTML += '<tr><td><strong>Revenue</strong></td><td class="amount"></td></tr>';
+                incomeHTML += '<tr><td>Medical Supplies Sales</td><td class="amount">₦' + totalRevenue.toLocaleString() + '</td></tr>';
+                incomeHTML += '<tr><td><strong>Total Revenue</strong></td><td class="amount"><strong>₦' + totalRevenue.toLocaleString() + '</strong></td></tr>';
+                
+                incomeHTML += '<tr><td><strong>Expenses</strong></td><td class="amount"></td></tr>';
+                incomeHTML += '<tr><td>All Operating Expenses</td><td class="amount">₦' + totalExpenses.toLocaleString() + '</td></tr>';
+                incomeHTML += '<tr><td><strong>Total Expenses</strong></td><td class="amount"><strong>₦' + totalExpenses.toLocaleString() + '</strong></td></tr>';
+                
+                incomeHTML += '<tr><td><strong>Net Income</strong></td><td class="amount"><strong class="' + (netIncome >= 0 ? 'positive' : 'negative') + '">₦' + netIncome.toLocaleString() + '</strong></td></tr>';
+                incomeHTML += '</table>';
+
+                document.getElementById('income-statement-report').innerHTML = incomeHTML;
+            } catch (error) {
+                console.error('Error loading income statement:', error);
+                document.getElementById('income-statement-report').innerHTML = '<p style="color: var(--danger); text-align: center;">Error loading income statement.</p>';
+            }
         }
 
-        function loadCashFlowStatement(month) {
-            const [year, monthNum] = month.split('-');
-            const startDate = new Date(year, monthNum - 1, 1);
-            const endDate = new Date(year, monthNum, 0);
-            endDate.setHours(23, 59, 59, 999);
+        async function loadCashFlowStatement(month) {
+            try {
+                const [year, monthNum] = month.split('-');
+                const startDate = new Date(year, monthNum - 1, 1);
+                const endDate = new Date(year, monthNum, 0);
+                endDate.setHours(23, 59, 59, 999);
 
-            document.getElementById('report-title').textContent = 'Cash Flow Statement - ' + new Date(startDate).toLocaleDateString('en', {year: 'numeric', month: 'long'});
-            document.getElementById('cash-flow-report').style.display = 'block';
+                let cashFromOperations = 0;
 
-            let cashFromOperations = 0;
-            let cashFromInvesting = 0;
-            let cashFromFinancing = 0;
+                // Calculate cash flow from operations (simplified)
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                    .where('date', '>=', startDate)
+                    .where('date', '<=', endDate)
+                    .get();
 
-            // Calculate cash flow from operations (simplified)
-            db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
-                .where('date', '>=', startDate)
-                .where('date', '<=', endDate)
-                .get()
-                .then(snapshot => {
-                    snapshot.forEach(doc => {
-                        const entry = doc.data();
-                        entry.lineItems.forEach(item => {
-                            if (item.accountCode === '1001') { // Cash account
-                                if (item.debit > 0) {
-                                    // Cash inflow
-                                    cashFromOperations += item.debit;
-                                } else if (item.credit > 0) {
-                                    // Cash outflow
-                                    cashFromOperations -= item.credit;
-                                }
+                journalSnapshot.forEach(doc => {
+                    const entry = doc.data();
+                    entry.lineItems.forEach(item => {
+                        if (item.accountCode === '1001') { // Cash account
+                            if (item.debit > 0) {
+                                cashFromOperations += item.debit;
+                            } else if (item.credit > 0) {
+                                cashFromOperations -= item.credit;
                             }
-                        });
+                        }
                     });
-
-                    const netCashFlow = cashFromOperations + cashFromInvesting + cashFromFinancing;
-
-                    // Get beginning and ending cash balance
-                    return db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('1001').get();
-                })
-                .then(cashAccountDoc => {
-                    const endingCashBalance = cashAccountDoc.data().balance || 0;
-                    
-                    // Calculate beginning cash balance (ending - net change)
-                    const beginningCashBalance = endingCashBalance - (cashFromOperations + cashFromInvesting + cashFromFinancing);
-
-                    // Update summary
-                    document.getElementById('report-summary').innerHTML = 
-                        '<div class="summary-card"><h3>Cash from Operations</h3><div class="value ' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Beginning Cash</h3><div class="value">₦' + beginningCashBalance.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Ending Cash</h3><div class="value">₦' + endingCashBalance.toLocaleString() + '</div></div>' +
-                        '<div class="summary-card"><h3>Net Cash Flow</h3><div class="value ' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</div></div>';
-
-                    // Build cash flow statement HTML
-                    let cashFlowHTML = '<div style="overflow-x: auto;"><table>';
-                    cashFlowHTML += '<tr><td><strong>Cash flows from operating activities:</strong></td><td class="amount"></td></tr>';
-                    cashFlowHTML += '<tr><td>Net cash from operations</td><td class="amount">₦' + cashFromOperations.toLocaleString() + '</td></tr>';
-                    cashFlowHTML += '<tr><td><strong>Net cash from operations</strong></td><td class="amount"><strong class="' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</strong></td></tr>';
-                    
-                    cashFlowHTML += '<tr><td><strong>Cash flows from investing activities:</strong></td><td class="amount"></td></tr>';
-                    cashFlowHTML += '<tr><td>Net cash from investing</td><td class="amount">₦' + cashFromInvesting.toLocaleString() + '</td></tr>';
-                    cashFlowHTML += '<tr><td><strong>Net cash from investing</strong></td><td class="amount"><strong>₦' + cashFromInvesting.toLocaleString() + '</strong></td></tr>';
-                    
-                    cashFlowHTML += '<tr><td><strong>Cash flows from financing activities:</strong></td><td class="amount"></td></tr>';
-                    cashFlowHTML += '<tr><td>Net cash from financing</td><td class="amount">₦' + cashFromFinancing.toLocaleString() + '</td></tr>';
-                    cashFlowHTML += '<tr><td><strong>Net cash from financing</strong></td><td class="amount"><strong>₦' + cashFromFinancing.toLocaleString() + '</strong></td></tr>';
-                    
-                    cashFlowHTML += '<tr><td><strong>Net increase in cash</strong></td><td class="amount"><strong class="' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</strong></td></tr>';
-                    cashFlowHTML += '<tr><td>Beginning cash balance</td><td class="amount">₦' + beginningCashBalance.toLocaleString() + '</td></tr>';
-                    cashFlowHTML += '<tr><td><strong>Ending cash balance</strong></td><td class="amount"><strong>₦' + endingCashBalance.toLocaleString() + '</strong></td></tr>';
-                    cashFlowHTML += '</table></div>';
-
-                    document.getElementById('cash-flow-report').innerHTML = cashFlowHTML;
-                })
-                .catch(error => {
-                    console.error('Error loading cash flow statement:', error);
-                    document.getElementById('cash-flow-report').innerHTML = '<p style="color: var(--danger);">Error loading cash flow statement: ' + error.message + '</p>';
                 });
+
+                const netCashFlow = cashFromOperations;
+
+                // Update summary
+                document.getElementById('report-summary').innerHTML = 
+                    '<div class="summary-card"><h3>Cash from Operations</h3><div class="value ' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</div></div>' +
+                    '<div class="summary-card"><h3>Net Cash Flow</h3><div class="value ' + (netCashFlow >= 0 ? 'positive' : 'negative') + '">₦' + netCashFlow.toLocaleString() + '</div></div>';
+
+                // Build cash flow statement HTML
+                let cashFlowHTML = '<table>';
+                cashFlowHTML += '<tr><td><strong>Cash flows from operating activities:</strong></td><td class="amount"></td></tr>';
+                cashFlowHTML += '<tr><td>Net cash provided by operations</td><td class="amount">₦' + cashFromOperations.toLocaleString() + '</td></tr>';
+                cashFlowHTML += '<tr><td><strong>Net cash from operations</strong></td><td class="amount"><strong class="' + (cashFromOperations >= 0 ? 'positive' : 'negative') + '">₦' + cashFromOperations.toLocaleString() + '</strong></td></tr>';
+                
+                cashFlowHTML += '<tr><td><strong>Net increase in cash</strong></td><td class="amount"><strong class="' + (netCashFlow >= 0 ? 'positive' : 'negative') + '">₦' + netCashFlow.toLocaleString() + '</strong></td></tr>';
+                cashFlowHTML += '</table>';
+
+                document.getElementById('cash-flow-report').innerHTML = cashFlowHTML;
+            } catch (error) {
+                console.error('Error loading cash flow statement:', error);
+                document.getElementById('cash-flow-report').innerHTML = '<p style="color: var(--danger); text-align: center;">Error loading cash flow statement.</p>';
+            }
         }
 
         function printReport() {
             window.print();
         }
+
+        // Reset functionality
+        function addResetButton() {
+            if (!document.getElementById('reset-data-btn')) {
+                const resetBtn = document.createElement('button');
+                resetBtn.id = 'reset-data-btn';
+                resetBtn.className = 'btn btn-danger';
+                resetBtn.style.position = 'fixed';
+                resetBtn.style.bottom = '20px';
+                resetBtn.style.right = '20px';
+                resetBtn.style.zIndex = '1000';
+                resetBtn.textContent = '🔄 Reset Data';
+                resetBtn.onclick = showResetModal;
+                document.body.appendChild(resetBtn);
+            }
+        }
+
+        function showResetModal() {
+            document.getElementById('reset-modal').style.display = 'block';
+            document.getElementById('confirm-reset').value = '';
+            document.getElementById('reset-btn').disabled = true;
+        }
+
+        function hideResetModal() {
+            document.getElementById('reset-modal').style.display = 'none';
+        }
+
+        function confirmReset() {
+            resetAllData();
+        }
+
+        async function resetAllData() {
+            try {
+                // Delete all expenses
+                const expensesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('expenses').get();
+                const expenseDeletes = expensesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all journal entries
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').get();
+                const journalDeletes = journalSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all inventory
+                const inventorySnapshot = await db.collection('companies').doc(COMPANY_ID).collection('inventory').get();
+                const inventoryDeletes = inventorySnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all invoices
+                const invoicesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('invoices').get();
+                const invoiceDeletes = invoicesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Wait for all deletions to complete
+                await Promise.all([...expenseDeletes, ...journalDeletes, ...inventoryDeletes, ...invoiceDeletes]);
+                
+                // Reset chart of accounts with seed capital
+                const cashAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('1001');
+                const capitalAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('3001');
+                
+                await cashAccountRef.set({
+                    code: '1001',
+                    name: 'Cash',
+                    type: 'asset',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await capitalAccountRef.set({
+                    code: '3001',
+                    name: 'Owner\'s Capital',
+                    type: 'equity',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                hideResetModal();
+                alert('All data reset successfully! ₦5,000,000 seed capital has been set.');
+                loadFinancialReports();
+            } catch (error) {
+                console.error('Error resetting data:', error);
+                alert('Error resetting data: ' + error.message);
+            }
+        }
     </script>
 </body>
-</html>
+    </html>
