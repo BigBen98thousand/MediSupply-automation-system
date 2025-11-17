@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory - MediSupply Hub</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2c5530; --primary-light: #4a7856; --secondary: #f8f9fa;
+            --accent: #e63946; --text: #333; --text-light: #6c757d; --border: #dee2e6;
+            --success: #28a745; --warning: #ffc107; --danger: #dc3545;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
+        .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
+        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: var(--secondary); font-weight: 600; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 8px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
+        .inventory-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .stat-card h3 { color: var(--text-light); font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .stat-card .amount { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .low-stock { background: #f8d7da; color: #721c24; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .out-of-stock { background: #f5c6cb; color: #721c24; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .in-stock { background: #d1edff; color: #004085; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        @media (max-width: 768px) {
+            .nav-menu { justify-content: center; }
+            .inventory-stats { grid-template-columns: 1fr 1fr; }
+            .modal-content { margin: 10% auto; padding: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .nav-logo h1 { font-size: 1rem; }
+            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+            .main-content { padding: 0 0.5rem; }
+            .inventory-stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+                <a href="journal-entries.html" class="nav-link">Journal</a>
+                <a href="general-ledger.html" class="nav-link">Ledger</a>
+                <a href="invoices.html" class="nav-link">Sales</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="inventory.html" class="nav-link active">Inventory</a>
+                <a href="financial-reports.html" class="nav-link">Reports</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h2>Inventory Management</h2>
+            <button class="btn btn-primary" onclick="showProductForm()">+ Add Product</button>
+        </div>
+
+        <div class="inventory-stats">
+            <div class="stat-card">
+                <h3>Total Products</h3>
+                <div class="amount" id="total-products">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Inventory Value</h3>
+                <div class="amount" id="total-value">₦0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Low Stock Items</h3>
+                <div class="amount" id="low-stock-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Out of Stock</h3>
+                <div class="amount" id="out-of-stock">0</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Stock</th>
+                        <th>Unit Cost</th>
+                        <th>Selling Price</th>
+                        <th>Total Value</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inventory-table">
+                    <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span style="float: right; font-size: 1.5rem; cursor: pointer;" onclick="hideProductForm()">&times;</span>
+            <h3 id="product-modal-title">Add Product</h3>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="product-name">Product Name</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-category">Category</label>
+                    <select id="product-category" required>
+                        <option value="">Select Category</option>
+                        <option value="Medical Consumables">Medical Consumables</option>
+                        <option value="PPE">Personal Protective Equipment</option>
+                        <option value="Equipment">Medical Equipment</option>
+                        <option value="Pharmaceuticals">Pharmaceuticals</option>
+                        <option value="Diagnostic">Diagnostic Kits</option>
+                        <option value="Surgical">Surgical Supplies</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product-stock">Initial Stock Quantity</label>
+                    <input type="number" id="product-stock" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-unit-cost">Unit Cost (₦)</label>
+                    <input type="number" id="product-unit-cost" step="0.01" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-selling-price">Selling Price (₦)</label>
+                    <input type="number" id="product-selling-price" step="0.01" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="product-reorder">Reorder Level</label>
+                    <input type="number" id="product-reorder" value="10" min="0">
+                </div>
+                <div class="form-actions" style="margin-top: 1rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="hideProductForm()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        let editingProductId = null;
+
+        function showProductForm() {
+            editingProductId = null;
+            document.getElementById('product-modal-title').textContent = 'Add Product';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-modal').style.display = 'block';
+        }
+
+        function hideProductForm() {
+            document.getElementById('product-modal').style.display = 'none';
+            document.getElementById('product-form').reset();
+        }
+
+        document.getElementById('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const productData = {
+                name: document.getElementById('product-name').value,
+                category: document.getElementById('product-category').value,
+                stockQuantity: parseInt(document.getElementById('product-stock').value),
+                unitCost: parseFloat(document.getElementById('product-unit-cost').value),
+                sellingPrice: parseFloat(document.getElementById('product-selling-price').value),
+                reorderLevel: parseInt(document.getElementById('product-reorder').value) || 10,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                if (editingProductId) {
+                    await db.collection('companies').doc(COMPANY_ID).collection('products')
+                        .doc(editingProductId).update(productData);
+                } else {
+                    productData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('companies').doc(COMPANY_ID).collection('products')
+                        .add(productData);
+                }
+
+                // Update inventory account balance
+                await updateInventoryAccount();
+
+                alert('Product saved successfully!');
+                hideProductForm();
+                loadInventory();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert('Error saving product: ' + error.message);
+            }
+        });
+
+        async function updateInventoryAccount() {
+            let totalInventoryValue = 0;
+            
+            const snapshot = await db.collection('companies').doc(COMPANY_ID).collection('products').get();
+            snapshot.forEach(doc => {
+                const product = doc.data();
+                totalInventoryValue += product.stockQuantity * product.unitCost;
+            });
+
+            // Update the inventory account balance
+            await db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .doc('1201')
+                .update({
+                    balance: totalInventoryValue,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+        }
+
+        function loadInventory() {
+            const tableBody = document.getElementById('inventory-table');
+            
+            db.collection('companies').doc(COMPANY_ID).collection('products')
+                .orderBy('name')
+                .get()
+                .then(snapshot => {
+                    tableBody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No products found</td></tr>';
+                        return;
+                    }
+
+                    let totalProducts = 0;
+                    let totalValue = 0;
+                    let lowStockCount = 0;
+                    let outOfStockCount = 0;
+
+                    snapshot.forEach(doc => {
+                        const product = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        const totalProductValue = product.stockQuantity * product.unitCost;
+                        totalValue += totalProductValue;
+                        totalProducts++;
+
+                        let statusClass = 'in-stock';
+                        let statusText = 'In Stock';
+                        
+                        if (product.stockQuantity === 0) {
+                            statusClass = 'out-of-stock';
+                            statusText = 'Out of Stock';
+                            outOfStockCount++;
+                        } else if (product.stockQuantity <= product.reorderLevel) {
+                            statusClass = 'low-stock';
+                            statusText = 'Low Stock';
+                            lowStockCount++;
+                        }
+
+                        row.innerHTML = '<td>' + product.name + '</td>' +
+                            '<td>' + product.category + '</td>' +
+                            '<td>' + product.stockQuantity + '</td>' +
+                            '<td>₦' + product.unitCost.toLocaleString() + '</td>' +
+                            '<td>₦' + product.sellingPrice.toLocaleString() + '</td>' +
+                            '<td>₦' + totalProductValue.toLocaleString() + '</td>' +
+                            '<td><span class="' + statusClass + '">' + statusText + '</span></td>' +
+                            '<td><button class="btn-secondary" onclick="editProduct(' + "'" + doc.id + "'" + ')">Edit</button></td>';
+                        tableBody.appendChild(row);
+                    });
+
+                    document.getElementById('total-products').textContent = totalProducts;
+                    document.getElementById('total-value').textContent = '₦' + totalValue.toLocaleString();
+                    document.getElementById('low-stock-count').textContent = lowStockCount;
+                    document.getElementById('out-of-stock').textContent = outOfStockCount;
+                });
+        }
+
+        function editProduct(productId) {
+            editingProductId = productId;
+            
+            db.collection('companies').doc(COMPANY_ID).collection('products')
+                .doc(productId)
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const product = doc.data();
+                        document.getElementById('product-modal-title').textContent = 'Edit Product';
+                        document.getElementById('product-name').value = product.name;
+                        document.getElementById('product-category').value = product.category;
+                        document.getElementById('product-stock').value = product.stockQuantity;
+                        document.getElementById('product-unit-cost').value = product.unitCost;
+                        document.getElementById('product-selling-price').value = product.sellingPrice;
+                        document.getElementById('product-reorder').value = product.reorderLevel || 10;
+                        document.getElementById('product-modal').style.display = 'block';
+                    }
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadInventory);
+    </script>
+</body>
+  </html>
