@@ -78,7 +78,7 @@
             
             <div class="nav-menu" id="nav-menu">
                 <a href="index.html" class="nav-link">Dashboard</a>
-                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+                
                 <a href="journal-entries.html" class="nav-link">Journal</a>
                 <a href="general-ledger.html" class="nav-link active">Ledger</a>
                 <a href="invoices.html" class="nav-link">Sales</a>
@@ -129,29 +129,7 @@
             </table>
         </div>
     </main>
-    <!-- Reset Data Modal -->
-<div id="reset-modal" class="modal">
-    <div class="modal-content">
-        <span style="float: right; font-size: 1.5rem; cursor: pointer;" onclick="hideResetModal()">&times;</span>
-        <h3 style="color: var(--danger);">⚠️ Reset All Data</h3>
-        <p><strong>Warning:</strong> This will permanently delete ALL your data including:</p>
-        <ul style="margin: 1rem 0; padding-left: 1.5rem;">
-            <li>All expenses and sales records</li>
-            <li>All journal entries and ledger data</li>
-            <li>All inventory items</li>
-            <li>All financial reports</li>
-        </ul>
-        <p>This action cannot be undone!</p>
-        <div class="form-group">
-            <label for="confirm-reset">Type "RESET" to confirm:</label>
-            <input type="text" id="confirm-reset" placeholder="Type RESET here">
-        </div>
-        <div class="form-actions" style="margin-top: 1rem; text-align: right;">
-            <button type="button" class="btn-secondary" onclick="hideResetModal()">Cancel</button>
-            <button type="button" class="btn-danger" onclick="confirmReset()" id="reset-btn" disabled>Reset All Data</button>
-        </div>
-    </div>
-</div>
+    
 
     <script src="firebase-config.js"></script>
     <script>
