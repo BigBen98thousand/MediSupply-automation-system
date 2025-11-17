@@ -14,12 +14,28 @@
             --success: #28a745; --warning: #ffc107; --danger: #dc3545;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
-        .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem; }
-        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
-        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
-        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        <nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+            <a href="journal-entries.html" class="nav-link">Journal</a>
+            <a href="general-ledger.html" class="nav-link">Ledger</a>
+            <a href="invoices.html" class="nav-link">Sales</a>
+            <a href="expenses.html" class="nav-link">Expenses</a>
+            <a href="inventory.html" class="nav-link">Inventory</a>
+            <a href="financial-reports.html" class="nav-link">Reports</a>
+        </div>
+
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
         .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
         .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
         .financial-overview, .quick-actions { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -61,19 +77,26 @@
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
-            <div class="nav-menu">
-                <a href="index.html" class="nav-link active">Dashboard</a>
-                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
-                <a href="journal-entries.html" class="nav-link">Journal</a>
-                <a href="general-ledger.html" class="nav-link">Ledger</a>
-                <a href="invoices.html" class="nav-link">Sales</a>
-                <a href="expenses.html" class="nav-link">Expenses</a>
-                <a href="inventory.html" class="nav-link">Inventory</a>
-                <a href="financial-reports.html" class="nav-link">Reports</a>
-            </div>
+    <div class="nav-container">
+        <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+        
+        <div class="nav-menu" id="nav-menu">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+            <a href="journal-entries.html" class="nav-link">Journal</a>
+            <a href="general-ledger.html" class="nav-link">Ledger</a>
+            <a href="invoices.html" class="nav-link">Sales</a>
+            <a href="expenses.html" class="nav-link">Expenses</a>
+            <a href="inventory.html" class="nav-link">Inventory</a>
+            <a href="financial-reports.html" class="nav-link">Reports</a>
         </div>
+
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
     </nav>
 
     <main class="main-content">
@@ -270,6 +293,44 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadDashboardData);
-    </script>
+   // Hamburger menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('nav-menu');
+
+    if (hamburger && navMenu) {
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Close menu when clicking on a link
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+
+    // Set active link based on current page
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        const linkPage = link.getAttribute('href');
+        if (linkPage === currentPage) {
+            link.classList.add('active');
+        }
+    });
+}); </script>
 </body>
                       </html>
