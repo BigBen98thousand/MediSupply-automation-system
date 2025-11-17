@@ -14,121 +14,33 @@
             --success: #28a745; --warning: #ffc107; --danger: #dc3545;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
-    /* Updated Navigation with Hamburger */
-.navbar {
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 1rem;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-}
-
-.nav-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.nav-logo h1 {
-    color: var(--primary);
-    font-size: 1.2rem;
-}
-
-.nav-menu {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: var(--text);
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.nav-link:hover, .nav-link.active {
-    background: var(--primary);
-    color: white;
-}
-
-/* Hamburger Menu */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    padding: 0.25rem;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--primary);
-    margin: 3px 0;
-    transition: 0.3s;
-    border-radius: 2px;
-}
-
-/* Mobile Styles */
-@media (max-width: 768px) {
-    .hamburger {
-        display: flex;
-    }
-
-    .nav-menu {
-        position: fixed;
-        left: -100%;
-        top: 70px;
-        flex-direction: column;
-        background: white;
-        width: 100%;
-        text-align: center;
-        transition: 0.3s;
-        box-shadow: 0 10px 27px rgba(0,0,0,0.05);
-        padding: 2rem 0;
-        gap: 0;
-    }
-
-    .nav-menu.active {
-        left: 0;
-    }
-
-    .nav-link {
-        display: block;
-        padding: 1rem;
-        border-bottom: 1px solid var(--border);
-        border-radius: 0;
-    }
-
-    .nav-link:hover, .nav-link.active {
-        background: var(--primary);
-        color: white;
-    }
-
-    .hamburger.active span:nth-child(1) {
-        transform: rotate(-45deg) translate(-5px, 6px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-        transform: rotate(45deg) translate(-5px, -6px);
-    }
-}
-
-.main-content {
-    margin-top: 80px; /* Account for fixed navbar */
-}
-        .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+        
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
+        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; padding: 0.25rem; }
+        .hamburger span { width: 25px; height: 3px; background: var(--primary); margin: 3px 0; transition: 0.3s; border-radius: 2px; }
+        
+        .main-content { max-width: 1400px; margin: 5rem auto 2rem; padding: 0 1rem; }
         .journal-form { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
@@ -145,51 +57,59 @@
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        
+        /* Mobile Styles */
         @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .nav-menu { position: fixed; left: -100%; top: 70px; flex-direction: column; background: white; width: 100%; text-align: center; transition: 0.3s; box-shadow: 0 10px 27px rgba(0,0,0,0.05); padding: 2rem 0; gap: 0; }
+            .nav-menu.active { left: 0; }
+            .nav-link { display: block; padding: 1rem; border-bottom: 1px solid var(--border); border-radius: 0; }
+            .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+            .hamburger.active span:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+            .hamburger.active span:nth-child(2) { opacity: 0; }
+            .hamburger.active span:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
             .line-item { grid-template-columns: 1fr; gap: 0.5rem; }
-            .nav-menu { justify-content: center; }
             .journal-form { padding: 1rem; }
-            .form-group input, .form-group select, .form-group textarea { padding: 0.6rem; }
+            .main-content { margin-top: 5rem; padding: 0 0.5rem; }
         }
         @media (max-width: 480px) {
             .nav-logo h1 { font-size: 1rem; }
-            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
-            .main-content { padding: 0 0.5rem; }
+            .nav-link { padding: 0.8rem; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
-        
-        <div class="nav-menu" id="nav-menu">
-            <a href="index.html" class="nav-link">Dashboard</a>
-            <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
-            <a href="journal-entries.html" class="nav-link">Journal</a>
-            <a href="general-ledger.html" class="nav-link">Ledger</a>
-            <a href="invoices.html" class="nav-link">Sales</a>
-            <a href="expenses.html" class="nav-link">Expenses</a>
-            <a href="inventory.html" class="nav-link">Inventory</a>
-            <a href="financial-reports.html" class="nav-link">Reports</a>
-        </div>
+        <div class="nav-container">
+            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+                <a href="journal-entries.html" class="nav-link active">Journal</a>
+                <a href="general-ledger.html" class="nav-link">Ledger</a>
+                <a href="invoices.html" class="nav-link">Sales</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="inventory.html" class="nav-link">Inventory</a>
+                <a href="financial-reports.html" class="nav-link">Reports</a>
+            </div>
 
-        <div class="hamburger" id="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
-    </div>
     </nav>
 
     <main class="main-content">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <h2>Journal Entries</h2>
+            <h2>Manual Journal Entries</h2>
             <button class="btn btn-primary" onclick="showJournalForm()">+ New Journal Entry</button>
         </div>
 
         <div id="journal-form" class="journal-form" style="display: none;">
-            <h3>Create Journal Entry</h3>
+            <h3>Create Manual Journal Entry</h3>
             <form id="journal-entry-form">
                 <div class="form-group">
                     <label for="journal-date">Date</label>
@@ -246,7 +166,7 @@
                     </tr>
                 </thead>
                 <tbody id="journal-entries-table">
-                    <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                    <tr><td colspan="7" style="text-align: center;">Loading journal entries...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -254,6 +174,30 @@
 
     <script src="firebase-config.js"></script>
     <script>
+        // Hamburger menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger');
+            const navMenu = document.getElementById('nav-menu');
+
+            hamburger.addEventListener('click', function() {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
+
+            // Load initial data
+            loadChartOfAccounts();
+            loadJournalEntries();
+        });
+
         let chartOfAccounts = [];
 
         function loadChartOfAccounts() {
@@ -292,6 +236,7 @@
         function hideJournalForm() {
             document.getElementById('journal-form').style.display = 'none';
             document.getElementById('journal-entry-form').reset();
+            calculateBalance(); // Reset balance calculation
         }
 
         function addLineItem() {
@@ -353,6 +298,7 @@
             }
         }
 
+        // Save journal entry
         document.getElementById('journal-entry-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -367,29 +313,38 @@
                 if (accountCode && (debit > 0 || credit > 0)) {
                     const account = chartOfAccounts.find(acc => acc.code === accountCode);
                     lineItems.push({
-                        accountCode: accountCode,
+                        accountCode,
                         accountName: account.name,
                         accountType: account.type,
-                        debit: debit,
-                        credit: credit,
+                        debit,
+                        credit,
                         amount: debit > 0 ? debit : credit,
-                        description: description
+                        description: description || 'Manual journal entry'
                     });
                 }
             });
+
+            if (lineItems.length === 0) {
+                alert('Please add at least one line item with amount');
+                return;
+            }
 
             const journalEntry = {
                 date: new Date(document.getElementById('journal-date').value),
                 reference: document.getElementById('journal-reference').value,
                 description: document.getElementById('journal-description').value,
-                lineItems: lineItems,
+                lineItems,
+                type: 'manual',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                createdBy: 'System'
+                createdBy: 'User'
             };
 
             try {
-                await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').add(journalEntry);
+                // Save journal entry
+                await db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                    .add(journalEntry);
 
+                // Update account balances
                 for (const item of lineItems) {
                     await updateAccountBalance(item.accountCode, item.debit, item.credit, item.accountType);
                 }
@@ -404,14 +359,21 @@
         });
 
         async function updateAccountBalance(accountCode, debit, credit, accountType) {
-            const accountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc(accountCode);
+            const accountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .doc(accountCode);
+
+            // Get current balance
             const doc = await accountRef.get();
             const currentBalance = doc.data().balance || 0;
 
             let newBalance = currentBalance;
+            
+            // Update based on account type and debit/credit
             if (accountType === 'asset' || accountType === 'expense') {
+                // Debit increases, credit decreases
                 newBalance = currentBalance + debit - credit;
             } else {
+                // Credit increases, debit decreases (liability, equity, revenue)
                 newBalance = currentBalance + credit - debit;
             }
 
@@ -447,65 +409,54 @@
                             '<td>' + entry.description + '</td>' +
                             '<td>₦' + debitTotal.toFixed(2) + '</td>' +
                             '<td>₦' + creditTotal.toFixed(2) + '</td>' +
-                            '<td>' + (Math.abs(debitTotal - creditTotal) < 0.01 ? 'Balanced' : 'Unbalanced') + '</td>' +
-                            '<td><button class="btn-secondary" onclick="viewJournalEntry(' + "'" + doc.id + "'" + ')">View</button></td>';
+                            '<td>' + (Math.abs(debitTotal - creditTotal) < 0.01 ? 
+                                '<span style="color: var(--success);">Balanced</span>' : 
+                                '<span style="color: var(--danger);">Unbalanced</span>') + '</td>' +
+                            '<td><button class="btn-secondary" onclick="viewJournalEntry(\'' + doc.id + '\')">View</button></td>';
                         tableBody.appendChild(row);
                     });
+                })
+                .catch(error => {
+                    console.error('Error loading journal entries:', error);
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--danger);">Error loading journal entries</td></tr>';
                 });
         }
 
         function viewJournalEntry(entryId) {
-            alert('View journal entry: ' + entryId);
+            // Simple view - could be expanded to show full details
+            db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                .doc(entryId)
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        const entry = doc.data();
+                        let details = 'Journal Entry Details:\n\n';
+                        details += 'Date: ' + entry.date.toDate().toLocaleDateString() + '\n';
+                        details += 'Reference: ' + entry.reference + '\n';
+                        details += 'Description: ' + entry.description + '\n\n';
+                        details += 'Line Items:\n';
+                        
+                        entry.lineItems.forEach(item => {
+                            details += '- ' + item.accountName + ': ';
+                            if (item.debit > 0) {
+                                details += 'Debit ₦' + item.debit;
+                            } else {
+                                details += 'Credit ₦' + item.credit;
+                            }
+                            details += '\n';
+                        });
+                        
+                        alert(details);
+                    }
+                });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadChartOfAccounts();
-            loadJournalEntries();
-            
-            document.addEventListener('input', function(e) {
-                if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
-                    calculateBalance();
-                }
-            });
-        });
-    // Hamburger menu functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        // Close menu when clicking on a link
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
+        // Add event listeners for balance calculation
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                calculateBalance();
             }
         });
-    }
-
-    // Set active link based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        const linkPage = link.getAttribute('href');
-        if (linkPage === currentPage) {
-            link.classList.add('active');
-        }
-    });
-});  </script>
+    </script>
 </body>
-                  </html>
+                </html>
