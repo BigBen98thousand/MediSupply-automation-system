@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journal Entries - MediSupply Hub</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2c5530; --primary-light: #4a7856; --secondary: #f8f9fa;
+            --accent: #e63946; --text: #333; --text-light: #6c757d; --border: #dee2e6;
+            --success: #28a745; --warning: #ffc107; --danger: #dc3545;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
+        .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
+        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+        .journal-form { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
+        .line-items { margin: 1rem 0; }
+        .line-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 0.5rem; align-items: end; }
+        .debit-credit-total { text-align: right; font-weight: bold; margin: 1rem 0; padding: 1rem; background: var(--secondary); border-radius: 4px; font-size: 0.9rem; }
+        .balanced { color: var(--success); }
+        .unbalanced { color: var(--danger); }
+        .table-container { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: var(--secondary); font-weight: 600; }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        @media (max-width: 768px) {
+            .line-item { grid-template-columns: 1fr; gap: 0.5rem; }
+            .nav-menu { justify-content: center; }
+            .journal-form { padding: 1rem; }
+            .form-group input, .form-group select, .form-group textarea { padding: 0.6rem; }
+        }
+        @media (max-width: 480px) {
+            .nav-logo h1 { font-size: 1rem; }
+            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+            .main-content { padding: 0 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+                <a href="journal-entries.html" class="nav-link active">Journal</a>
+                <a href="general-ledger.html" class="nav-link">Ledger</a>
+                <a href="invoices.html" class="nav-link">Sales</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="inventory.html" class="nav-link">Inventory</a>
+                <a href="financial-reports.html" class="nav-link">Reports</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <h2>Journal Entries</h2>
+            <button class="btn btn-primary" onclick="showJournalForm()">+ New Journal Entry</button>
+        </div>
+
+        <div id="journal-form" class="journal-form" style="display: none;">
+            <h3>Create Journal Entry</h3>
+            <form id="journal-entry-form">
+                <div class="form-group">
+                    <label for="journal-date">Date</label>
+                    <input type="date" id="journal-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="journal-reference">Reference Number</label>
+                    <input type="text" id="journal-reference" required>
+                </div>
+                <div class="form-group">
+                    <label for="journal-description">Description</label>
+                    <textarea id="journal-description" rows="2" required></textarea>
+                </div>
+
+                <h4>Line Items</h4>
+                <div class="line-items" id="line-items-container">
+                    <div class="line-item">
+                        <select class="account-select" required>
+                            <option value="">Select Account</option>
+                        </select>
+                        <input type="number" class="debit-amount" placeholder="Debit" step="0.01">
+                        <input type="number" class="credit-amount" placeholder="Credit" step="0.01">
+                        <input type="text" class="line-description" placeholder="Description">
+                        <button type="button" class="btn-secondary" onclick="removeLineItem(this)">Remove</button>
+                    </div>
+                </div>
+
+                <div class="debit-credit-total">
+                    Debit Total: ₦<span id="debit-total">0.00</span> | 
+                    Credit Total: ₦<span id="credit-total">0.00</span>
+                    <span id="balance-status" class="unbalanced">(Unbalanced)</span>
+                </div>
+
+                <button type="button" class="btn-secondary" onclick="addLineItem()">+ Add Line Item</button>
+
+                <div class="form-actions" style="margin-top: 1rem; text-align: right;">
+                    <button type="button" class="btn-secondary" onclick="hideJournalForm()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="save-journal-btn" disabled>Save Journal Entry</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Reference</th>
+                        <th>Description</th>
+                        <th>Debit Total</th>
+                        <th>Credit Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="journal-entries-table">
+                    <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        let chartOfAccounts = [];
+
+        function loadChartOfAccounts() {
+            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .orderBy('code')
+                .get()
+                .then(snapshot => {
+                    chartOfAccounts = [];
+                    const selects = document.querySelectorAll('.account-select');
+                    selects.forEach(select => {
+                        select.innerHTML = '<option value="">Select Account</option>';
+                    });
+
+                    snapshot.forEach(doc => {
+                        const account = doc.data();
+                        chartOfAccounts.push(account);
+                        
+                        selects.forEach(select => {
+                            const option = document.createElement('option');
+                            option.value = doc.id;
+                            option.textContent = account.code + ' - ' + account.name;
+                            option.dataset.type = account.type;
+                            select.appendChild(option);
+                        });
+                    });
+                });
+        }
+
+        function showJournalForm() {
+            document.getElementById('journal-form').style.display = 'block';
+            document.getElementById('journal-date').valueAsDate = new Date();
+            document.getElementById('journal-reference').value = 'JE-' + Date.now().toString().slice(-6);
+            loadChartOfAccounts();
+        }
+
+        function hideJournalForm() {
+            document.getElementById('journal-form').style.display = 'none';
+            document.getElementById('journal-entry-form').reset();
+        }
+
+        function addLineItem() {
+            const container = document.getElementById('line-items-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'line-item';
+            newItem.innerHTML = '<select class="account-select" required><option value="">Select Account</option></select>' +
+                '<input type="number" class="debit-amount" placeholder="Debit" step="0.01">' +
+                '<input type="number" class="credit-amount" placeholder="Credit" step="0.01">' +
+                '<input type="text" class="line-description" placeholder="Description">' +
+                '<button type="button" class="btn-secondary" onclick="removeLineItem(this)">Remove</button>';
+            container.appendChild(newItem);
+            
+            const select = newItem.querySelector('.account-select');
+            chartOfAccounts.forEach(account => {
+                const option = document.createElement('option');
+                option.value = account.code;
+                option.textContent = account.code + ' - ' + account.name;
+                option.dataset.type = account.type;
+                select.appendChild(option);
+            });
+
+            newItem.querySelector('.debit-amount').addEventListener('input', calculateBalance);
+            newItem.querySelector('.credit-amount').addEventListener('input', calculateBalance);
+        }
+
+        function removeLineItem(button) {
+            if (document.querySelectorAll('.line-item').length > 1) {
+                button.closest('.line-item').remove();
+                calculateBalance();
+            }
+        }
+
+        function calculateBalance() {
+            let debitTotal = 0;
+            let creditTotal = 0;
+
+            document.querySelectorAll('.line-item').forEach(item => {
+                const debit = parseFloat(item.querySelector('.debit-amount').value) || 0;
+                const credit = parseFloat(item.querySelector('.credit-amount').value) || 0;
+                debitTotal += debit;
+                creditTotal += credit;
+            });
+
+            document.getElementById('debit-total').textContent = debitTotal.toFixed(2);
+            document.getElementById('credit-total').textContent = creditTotal.toFixed(2);
+
+            const balanceStatus = document.getElementById('balance-status');
+            const saveButton = document.getElementById('save-journal-btn');
+
+            if (Math.abs(debitTotal - creditTotal) < 0.01) {
+                balanceStatus.textContent = '(Balanced)';
+                balanceStatus.className = 'balanced';
+                saveButton.disabled = false;
+            } else {
+                balanceStatus.textContent = '(Unbalanced)';
+                balanceStatus.className = 'unbalanced';
+                saveButton.disabled = true;
+            }
+        }
+
+        document.getElementById('journal-entry-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const lineItems = [];
+            document.querySelectorAll('.line-item').forEach(item => {
+                const accountSelect = item.querySelector('.account-select');
+                const accountCode = accountSelect.value;
+                const debit = parseFloat(item.querySelector('.debit-amount').value) || 0;
+                const credit = parseFloat(item.querySelector('.credit-amount').value) || 0;
+                const description = item.querySelector('.line-description').value;
+
+                if (accountCode && (debit > 0 || credit > 0)) {
+                    const account = chartOfAccounts.find(acc => acc.code === accountCode);
+                    lineItems.push({
+                        accountCode: accountCode,
+                        accountName: account.name,
+                        accountType: account.type,
+                        debit: debit,
+                        credit: credit,
+                        amount: debit > 0 ? debit : credit,
+                        description: description
+                    });
+                }
+            });
+
+            const journalEntry = {
+                date: new Date(document.getElementById('journal-date').value),
+                reference: document.getElementById('journal-reference').value,
+                description: document.getElementById('journal-description').value,
+                lineItems: lineItems,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                createdBy: 'System'
+            };
+
+            try {
+                await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').add(journalEntry);
+
+                for (const item of lineItems) {
+                    await updateAccountBalance(item.accountCode, item.debit, item.credit, item.accountType);
+                }
+
+                alert('Journal entry saved successfully!');
+                hideJournalForm();
+                loadJournalEntries();
+            } catch (error) {
+                console.error('Error saving journal entry:', error);
+                alert('Error saving journal entry: ' + error.message);
+            }
+        });
+
+        async function updateAccountBalance(accountCode, debit, credit, accountType) {
+            const accountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc(accountCode);
+            const doc = await accountRef.get();
+            const currentBalance = doc.data().balance || 0;
+
+            let newBalance = currentBalance;
+            if (accountType === 'asset' || accountType === 'expense') {
+                newBalance = currentBalance + debit - credit;
+            } else {
+                newBalance = currentBalance + credit - debit;
+            }
+
+            await accountRef.update({
+                balance: newBalance,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function loadJournalEntries() {
+            const tableBody = document.getElementById('journal-entries-table');
+            
+            db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                .orderBy('date', 'desc')
+                .get()
+                .then(snapshot => {
+                    tableBody.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No journal entries found</td></tr>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const entry = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        const debitTotal = entry.lineItems.reduce((sum, item) => sum + item.debit, 0);
+                        const creditTotal = entry.lineItems.reduce((sum, item) => sum + item.credit, 0);
+                        
+                        row.innerHTML = '<td>' + entry.date.toDate().toLocaleDateString() + '</td>' +
+                            '<td>' + entry.reference + '</td>' +
+                            '<td>' + entry.description + '</td>' +
+                            '<td>₦' + debitTotal.toFixed(2) + '</td>' +
+                            '<td>₦' + creditTotal.toFixed(2) + '</td>' +
+                            '<td>' + (Math.abs(debitTotal - creditTotal) < 0.01 ? 'Balanced' : 'Unbalanced') + '</td>' +
+                            '<td><button class="btn-secondary" onclick="viewJournalEntry(' + "'" + doc.id + "'" + ')">View</button></td>';
+                        tableBody.appendChild(row);
+                    });
+                });
+        }
+
+        function viewJournalEntry(entryId) {
+            alert('View journal entry: ' + entryId);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadChartOfAccounts();
+            loadJournalEntries();
+            
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                    calculateBalance();
+                }
+            });
+        });
+    </script>
+</body>
+                  </html>
