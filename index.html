@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSupply Hub - Accounting System</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2c5530; --primary-light: #4a7856; --secondary: #f8f9fa;
+            --accent: #e63946; --text: #333; --text-light: #6c757d; --border: #dee2e6;
+            --success: #28a745; --warning: #ffc107; --danger: #dc3545;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
+        .navbar { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 1rem; }
+        .nav-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
+        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .financial-overview, .quick-actions { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0; }
+        .stat-card { background: var(--secondary); padding: 1rem; border-radius: 8px; text-align: center; border-left: 4px solid var(--primary); }
+        .stat-card h3 { color: var(--text-light); font-size: 0.8rem; margin-bottom: 0.5rem; }
+        .stat-card .amount { font-size: 1.2rem; font-weight: bold; color: var(--primary); }
+        .positive { color: var(--success); }
+        .negative { color: var(--danger); }
+        .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        .recent-activities { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .activity-list { margin-top: 1rem; }
+        .activity-item { padding: 0.8rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .activity-item:last-child { border-bottom: none; }
+        .quick-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 1rem; }
+        .action-card { background: var(--secondary); padding: 1.2rem; border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.2s ease; }
+        .action-card:hover { transform: translateY(-2px); background: var(--primary); color: white; }
+        .action-card h4 { margin-bottom: 0.5rem; font-size: 0.9rem; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        th { background: var(--secondary); font-weight: 600; }
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .quick-actions-grid { grid-template-columns: 1fr; }
+            .nav-menu { justify-content: center; }
+            .financial-stats table { font-size: 0.8rem; }
+            .activity-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+        @media (max-width: 480px) {
+            .nav-logo h1 { font-size: 1rem; }
+            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+            .main-content { padding: 0 0.5rem; }
+            .financial-overview, .quick-actions, .recent-activities { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="chart-of-accounts.html" class="nav-link">Accounts</a>
+                <a href="journal-entries.html" class="nav-link">Journal</a>
+                <a href="general-ledger.html" class="nav-link">Ledger</a>
+                <a href="invoices.html" class="nav-link">Sales</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="inventory.html" class="nav-link">Inventory</a>
+                <a href="financial-reports.html" class="nav-link">Reports</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="dashboard-grid">
+            <div class="financial-overview">
+                <h2>Financial Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Cash Balance</h3>
+                        <div class="amount" id="cash-balance">₦0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Accounts Receivable</h3>
+                        <div class="amount" id="accounts-receivable">₦0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Accounts Payable</h3>
+                        <div class="amount" id="accounts-payable">₦0.00</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Net Profit</h3>
+                        <div class="amount" id="net-profit">₦0.00</div>
+                    </div>
+                </div>
+
+                <div class="financial-stats">
+                    <h3>This Month</h3>
+                    <table>
+                        <tr>
+                            <td>Revenue</td>
+                            <td id="monthly-revenue">₦0.00</td>
+                        </tr>
+                        <tr>
+                            <td>Expenses</td>
+                            <td id="monthly-expenses">₦0.00</td>
+                        </tr>
+                        <tr>
+                            <td>Net Income</td>
+                            <td id="monthly-net-income">₦0.00</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="quick-actions-grid">
+                    <div class="action-card" onclick="location.href='journal-entries.html'">
+                        <h4>➕ New Journal</h4>
+                        <p>Record transaction</p>
+                    </div>
+                    <div class="action-card" onclick="location.href='invoices.html'">
+                        <h4>📄 Create Invoice</h4>
+                        <p>Bill customer</p>
+                    </div>
+                    <div class="action-card" onclick="location.href='expenses.html'">
+                        <h4>💸 Record Expense</h4>
+                        <p>Track spending</p>
+                    </div>
+                    <div class="action-card" onclick="location.href='financial-reports.html'">
+                        <h4>📊 View Reports</h4>
+                        <p>Financial statements</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="recent-activities">
+            <h2>Recent Activities</h2>
+            <div class="activity-list" id="recent-activities">
+                <div class="activity-item">
+                    <div>No recent activities</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        function loadDashboardData() {
+            loadAccountBalances();
+            loadMonthlySummary();
+            loadRecentActivities();
+        }
+
+        function loadAccountBalances() {
+            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .doc('1001')
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        document.getElementById('cash-balance').textContent = 
+                            '₦' + (doc.data().balance || 0).toLocaleString();
+                    }
+                });
+
+            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .doc('1101')
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        document.getElementById('accounts-receivable').textContent = 
+                            '₦' + (doc.data().balance || 0).toLocaleString();
+                    }
+                });
+
+            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
+                .doc('2001')
+                .get()
+                .then(doc => {
+                    if (doc.exists) {
+                        document.getElementById('accounts-payable').textContent = 
+                            '₦' + (doc.data().balance || 0).toLocaleString();
+                    }
+                });
+        }
+
+        function loadMonthlySummary() {
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
+            const endOfMonth = new Date();
+            endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+            endOfMonth.setDate(0);
+            endOfMonth.setHours(23, 59, 59, 999);
+
+            let monthlyRevenue = 0;
+            let monthlyExpenses = 0;
+
+            db.collection('companies').doc(COMPANY_ID).collection('invoices')
+                .where('date', '>=', startOfMonth)
+                .where('date', '<=', endOfMonth)
+                .get()
+                .then(snapshot => {
+                    snapshot.forEach(doc => {
+                        monthlyRevenue += doc.data().totalAmount || 0;
+                    });
+                    
+                    db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                        .where('date', '>=', startOfMonth)
+                        .where('date', '<=', endOfMonth)
+                        .get()
+                        .then(snapshot => {
+                            snapshot.forEach(doc => {
+                                const entry = doc.data();
+                                entry.lineItems.forEach(item => {
+                                    if (item.accountType === 'expense') {
+                                        monthlyExpenses += item.amount;
+                                    }
+                                });
+                            });
+
+                            const netIncome = monthlyRevenue - monthlyExpenses;
+                            
+                            document.getElementById('monthly-revenue').textContent = '₦' + monthlyRevenue.toLocaleString();
+                            document.getElementById('monthly-expenses').textContent = '₦' + monthlyExpenses.toLocaleString();
+                            document.getElementById('monthly-net-income').textContent = '₦' + netIncome.toLocaleString();
+                            document.getElementById('monthly-net-income').className = netIncome >= 0 ? 'positive' : 'negative';
+                            document.getElementById('net-profit').textContent = '₦' + netIncome.toLocaleString();
+                            document.getElementById('net-profit').className = netIncome >= 0 ? 'positive' : 'negative';
+                        });
+                });
+        }
+
+        function loadRecentActivities() {
+            const activitiesContainer = document.getElementById('recent-activities');
+            
+            db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
+                .orderBy('date', 'desc')
+                .limit(5)
+                .get()
+                .then(snapshot => {
+                    activitiesContainer.innerHTML = '';
+                    
+                    if (snapshot.empty) {
+                        activitiesContainer.innerHTML = '<div class="activity-item">No recent activities</div>';
+                        return;
+                    }
+
+                    snapshot.forEach(doc => {
+                        const entry = doc.data();
+                        const activityItem = document.createElement('div');
+                        activityItem.className = 'activity-item';
+                        
+                        const date = entry.date.toDate().toLocaleDateString();
+                        const description = entry.description || 'Journal Entry';
+                        const amount = entry.lineItems.reduce((sum, item) => sum + item.amount, 0);
+                        
+                        activityItem.innerHTML = '<div><strong>' + description + '</strong><div style="color: var(--text-light); font-size: 0.8rem;">' + date + '</div></div><div style="font-weight: bold;">₦' + amount.toLocaleString() + '</div>';
+                        activitiesContainer.appendChild(activityItem);
+                    });
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
+    </script>
+</body>
+                      </html>
