@@ -1,11 +1,11 @@
-// Firebase Configuration - Replace with your actual Firebase project config
+// Firebase Configuration
 const firebaseConfig = {
-    apiKey: "your-api-key-here",
-    authDomain: "your-project-id.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project-id.appspot.com",
-    messagingSenderId: "your-sender-id",
-    appId: "your-app-id"
+    apiKey: "AIzaSyB42anRB-kvcpXwvOgRMRYnKiCoFYSkf7I",
+    authDomain: "business-manager-f5b68.firebaseapp.com",
+    projectId: "business-manager-f5b68",
+    storageBucket: "business-manager-f5b68.firebasestorage.app",
+    messagingSenderId: "426725406348",
+    appId: "1:426725406348:web:10f303180e4143a052ada9"
 };
 
 // Initialize Firebase
@@ -243,4 +243,4 @@ function getCurrentMonthYear() {
 // Export for use in other files (if needed)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { db, COMPANY_ID, formatCurrency, formatDate };
-      }
+            }
