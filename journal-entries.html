@@ -56,7 +56,12 @@
         th { background: var(--secondary); font-weight: 600; }
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
         .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 8px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         
         /* Mobile Styles */
         @media (max-width: 768px) {
@@ -85,7 +90,6 @@
             
             <div class="nav-menu" id="nav-menu">
                 <a href="index.html" class="nav-link">Dashboard</a>
-                
                 <a href="journal-entries.html" class="nav-link active">Journal</a>
                 <a href="general-ledger.html" class="nav-link">Ledger</a>
                 <a href="invoices.html" class="nav-link">Sales</a>
@@ -129,6 +133,9 @@
                     <div class="line-item">
                         <select class="account-select" required>
                             <option value="">Select Account</option>
+                            <option value="1001">1001 - Cash</option>
+                            <option value="3001">3001 - Owner's Capital</option>
+                            <option value="6000">6000 - Expense Account</option>
                         </select>
                         <input type="number" class="debit-amount" placeholder="Debit" step="0.01">
                         <input type="number" class="credit-amount" placeholder="Credit" step="0.01">
@@ -172,9 +179,29 @@
         </div>
     </main>
 
-
-
-    
+    <!-- Reset Data Modal -->
+    <div id="reset-modal" class="modal">
+        <div class="modal-content">
+            <span style="float: right; font-size: 1.5rem; cursor: pointer;" onclick="hideResetModal()">&times;</span>
+            <h3 style="color: var(--danger);">⚠️ Reset All Data</h3>
+            <p><strong>Warning:</strong> This will permanently delete ALL your data including:</p>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                <li>All expenses and sales records</li>
+                <li>All journal entries and ledger data</li>
+                <li>All inventory items</li>
+                <li>All financial reports</li>
+            </ul>
+            <p>This action cannot be undone!</p>
+            <div class="form-group">
+                <label for="confirm-reset">Type "RESET" to confirm:</label>
+                <input type="text" id="confirm-reset" placeholder="Type RESET here">
+            </div>
+            <div class="form-actions" style="margin-top: 1rem; text-align: right;">
+                <button type="button" class="btn-secondary" onclick="hideResetModal()">Cancel</button>
+                <button type="button" class="btn-danger" onclick="confirmReset()" id="reset-btn" disabled>Reset All Data</button>
+            </div>
+        </div>
+    </div>
 
     <script src="firebase-config.js"></script>
     <script>
@@ -198,48 +225,47 @@
             });
 
             // Load initial data
-            loadChartOfAccounts();
             loadJournalEntries();
+            addResetButton();
+
+            // Add reset confirmation input listener
+            document.getElementById('confirm-reset').addEventListener('input', function() {
+                document.getElementById('reset-btn').disabled = this.value !== 'RESET';
+            });
+
+            // Add event listeners for balance calculation
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('debit-amount') || e.target.classList.contains('credit-amount')) {
+                    calculateBalance();
+                }
+            });
         });
-
-        let chartOfAccounts = [];
-
-        function loadChartOfAccounts() {
-            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
-                .orderBy('code')
-                .get()
-                .then(snapshot => {
-                    chartOfAccounts = [];
-                    const selects = document.querySelectorAll('.account-select');
-                    selects.forEach(select => {
-                        select.innerHTML = '<option value="">Select Account</option>';
-                    });
-
-                    snapshot.forEach(doc => {
-                        const account = doc.data();
-                        chartOfAccounts.push(account);
-                        
-                        selects.forEach(select => {
-                            const option = document.createElement('option');
-                            option.value = doc.id;
-                            option.textContent = account.code + ' - ' + account.name;
-                            option.dataset.type = account.type;
-                            select.appendChild(option);
-                        });
-                    });
-                });
-        }
 
         function showJournalForm() {
             document.getElementById('journal-form').style.display = 'block';
             document.getElementById('journal-date').valueAsDate = new Date();
             document.getElementById('journal-reference').value = 'JE-' + Date.now().toString().slice(-6);
-            loadChartOfAccounts();
         }
 
         function hideJournalForm() {
             document.getElementById('journal-form').style.display = 'none';
             document.getElementById('journal-entry-form').reset();
+            // Reset to one line item
+            const container = document.getElementById('line-items-container');
+            container.innerHTML = `
+                <div class="line-item">
+                    <select class="account-select" required>
+                        <option value="">Select Account</option>
+                        <option value="1001">1001 - Cash</option>
+                        <option value="3001">3001 - Owner's Capital</option>
+                        <option value="6000">6000 - Expense Account</option>
+                    </select>
+                    <input type="number" class="debit-amount" placeholder="Debit" step="0.01">
+                    <input type="number" class="credit-amount" placeholder="Credit" step="0.01">
+                    <input type="text" class="line-description" placeholder="Description">
+                    <button type="button" class="btn-secondary" onclick="removeLineItem(this)">Remove</button>
+                </div>
+            `;
             calculateBalance(); // Reset balance calculation
         }
 
@@ -247,24 +273,19 @@
             const container = document.getElementById('line-items-container');
             const newItem = document.createElement('div');
             newItem.className = 'line-item';
-            newItem.innerHTML = '<select class="account-select" required><option value="">Select Account</option></select>' +
-                '<input type="number" class="debit-amount" placeholder="Debit" step="0.01">' +
-                '<input type="number" class="credit-amount" placeholder="Credit" step="0.01">' +
-                '<input type="text" class="line-description" placeholder="Description">' +
-                '<button type="button" class="btn-secondary" onclick="removeLineItem(this)">Remove</button>';
+            newItem.innerHTML = `
+                <select class="account-select" required>
+                    <option value="">Select Account</option>
+                    <option value="1001">1001 - Cash</option>
+                    <option value="3001">3001 - Owner's Capital</option>
+                    <option value="6000">6000 - Expense Account</option>
+                </select>
+                <input type="number" class="debit-amount" placeholder="Debit" step="0.01">
+                <input type="number" class="credit-amount" placeholder="Credit" step="0.01">
+                <input type="text" class="line-description" placeholder="Description">
+                <button type="button" class="btn-secondary" onclick="removeLineItem(this)">Remove</button>
+            `;
             container.appendChild(newItem);
-            
-            const select = newItem.querySelector('.account-select');
-            chartOfAccounts.forEach(account => {
-                const option = document.createElement('option');
-                option.value = account.code;
-                option.textContent = account.code + ' - ' + account.name;
-                option.dataset.type = account.type;
-                select.appendChild(option);
-            });
-
-            newItem.querySelector('.debit-amount').addEventListener('input', calculateBalance);
-            newItem.querySelector('.credit-amount').addEventListener('input', calculateBalance);
         }
 
         function removeLineItem(button) {
@@ -291,7 +312,7 @@
             const balanceStatus = document.getElementById('balance-status');
             const saveButton = document.getElementById('save-journal-btn');
 
-            if (Math.abs(debitTotal - creditTotal) < 0.01) {
+            if (Math.abs(debitTotal - creditTotal) < 0.01 && debitTotal > 0) {
                 balanceStatus.textContent = '(Balanced)';
                 balanceStatus.className = 'balanced';
                 saveButton.disabled = false;
@@ -315,11 +336,13 @@
                 const description = item.querySelector('.line-description').value;
 
                 if (accountCode && (debit > 0 || credit > 0)) {
-                    const account = chartOfAccounts.find(acc => acc.code === accountCode);
+                    const accountName = getAccountName(accountCode);
+                    const accountType = getAccountType(accountCode);
+                    
                     lineItems.push({
                         accountCode,
-                        accountName: account.name,
-                        accountType: account.type,
+                        accountName,
+                        accountType,
                         debit,
                         credit,
                         amount: debit > 0 ? debit : credit,
@@ -362,29 +385,58 @@
             }
         });
 
+        function getAccountName(accountCode) {
+            const accounts = {
+                '1001': 'Cash',
+                '3001': 'Owner\'s Capital',
+                '6000': 'Expense Account'
+            };
+            return accounts[accountCode] || 'Unknown Account';
+        }
+
+        function getAccountType(accountCode) {
+            const types = {
+                '1001': 'asset',
+                '3001': 'equity',
+                '6000': 'expense'
+            };
+            return types[accountCode] || 'expense';
+        }
+
         async function updateAccountBalance(accountCode, debit, credit, accountType) {
             const accountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
                 .doc(accountCode);
 
-            // Get current balance
-            const doc = await accountRef.get();
-            const currentBalance = doc.data().balance || 0;
+            try {
+                // Get current balance
+                const doc = await accountRef.get();
+                let currentBalance = 0;
 
-            let newBalance = currentBalance;
-            
-            // Update based on account type and debit/credit
-            if (accountType === 'asset' || accountType === 'expense') {
-                // Debit increases, credit decreases
-                newBalance = currentBalance + debit - credit;
-            } else {
-                // Credit increases, debit decreases (liability, equity, revenue)
-                newBalance = currentBalance + credit - debit;
+                if (doc.exists) {
+                    currentBalance = doc.data().balance || 0;
+                }
+
+                let newBalance = currentBalance;
+                
+                // Update based on account type and debit/credit
+                if (accountType === 'asset' || accountType === 'expense') {
+                    // Debit increases, credit decreases
+                    newBalance = currentBalance + debit - credit;
+                } else {
+                    // Credit increases, debit decreases (liability, equity, revenue)
+                    newBalance = currentBalance + credit - debit;
+                }
+
+                await accountRef.set({
+                    code: accountCode,
+                    name: getAccountName(accountCode),
+                    type: accountType,
+                    balance: newBalance,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Error updating account balance:', error);
             }
-
-            await accountRef.update({
-                balance: newBalance,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
         }
 
         function loadJournalEntries() {
@@ -405,8 +457,8 @@
                         const entry = doc.data();
                         const row = document.createElement('tr');
                         
-                        const debitTotal = entry.lineItems.reduce((sum, item) => sum + item.debit, 0);
-                        const creditTotal = entry.lineItems.reduce((sum, item) => sum + item.credit, 0);
+                        const debitTotal = entry.lineItems.reduce((sum, item) => sum + (item.debit || 0), 0);
+                        const creditTotal = entry.lineItems.reduce((sum, item) => sum + (item.credit || 0), 0);
                         
                         row.innerHTML = '<td>' + entry.date.toDate().toLocaleDateString() + '</td>' +
                             '<td>' + entry.reference + '</td>' +
@@ -427,7 +479,6 @@
         }
 
         function viewJournalEntry(entryId) {
-            // Simple view - could be expanded to show full details
             db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
                 .doc(entryId)
                 .get()
@@ -455,7 +506,85 @@
                 });
         }
 
-        
+        // Reset functionality
+        function addResetButton() {
+            if (!document.getElementById('reset-data-btn')) {
+                const resetBtn = document.createElement('button');
+                resetBtn.id = 'reset-data-btn';
+                resetBtn.className = 'btn btn-danger';
+                resetBtn.style.position = 'fixed';
+                resetBtn.style.bottom = '20px';
+                resetBtn.style.right = '20px';
+                resetBtn.style.zIndex = '1000';
+                resetBtn.textContent = '🔄 Reset Data';
+                resetBtn.onclick = showResetModal;
+                document.body.appendChild(resetBtn);
+            }
+        }
+
+        function showResetModal() {
+            document.getElementById('reset-modal').style.display = 'block';
+            document.getElementById('confirm-reset').value = '';
+            document.getElementById('reset-btn').disabled = true;
+        }
+
+        function hideResetModal() {
+            document.getElementById('reset-modal').style.display = 'none';
+        }
+
+        function confirmReset() {
+            resetAllData();
+        }
+
+        async function resetAllData() {
+            try {
+                // Delete all expenses
+                const expensesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('expenses').get();
+                const expenseDeletes = expensesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all journal entries
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').get();
+                const journalDeletes = journalSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all inventory
+                const inventorySnapshot = await db.collection('companies').doc(COMPANY_ID).collection('inventory').get();
+                const inventoryDeletes = inventorySnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all invoices
+                const invoicesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('invoices').get();
+                const invoiceDeletes = invoicesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Wait for all deletions to complete
+                await Promise.all([...expenseDeletes, ...journalDeletes, ...inventoryDeletes, ...invoiceDeletes]);
+                
+                // Reset chart of accounts with 5 million seed capital
+                const cashAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('1001');
+                const capitalAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('3001');
+                
+                await cashAccountRef.set({
+                    code: '1001',
+                    name: 'Cash',
+                    type: 'asset',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await capitalAccountRef.set({
+                    code: '3001',
+                    name: 'Owner\'s Capital',
+                    type: 'equity',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                hideResetModal();
+                alert('All data reset successfully! ₦5,000,000 seed capital has been set.');
+                loadJournalEntries();
+            } catch (error) {
+                console.error('Error resetting data:', error);
+                alert('Error resetting data: ' + error.message);
+            }
+        }
     </script>
 </body>
-                </html>
+    </html>
