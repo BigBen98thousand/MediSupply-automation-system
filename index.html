@@ -14,121 +14,33 @@
             --success: #28a745; --warning: #ffc107; --danger: #dc3545;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; color: var(--text); }
-        /* Updated Navigation with Hamburger */
-.navbar {
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 1rem;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
-}
-
-.nav-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-.nav-logo h1 {
-    color: var(--primary);
-    font-size: 1.2rem;
-}
-
-.nav-menu {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.nav-link {
-    text-decoration: none;
-    color: var(--text);
-    padding: 0.5rem 0.75rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
-
-.nav-link:hover, .nav-link.active {
-    background: var(--primary);
-    color: white;
-}
-
-/* Hamburger Menu */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    padding: 0.25rem;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--primary);
-    margin: 3px 0;
-    transition: 0.3s;
-    border-radius: 2px;
-}
-
-/* Mobile Styles */
-@media (max-width: 768px) {
-    .hamburger {
-        display: flex;
-    }
-
-    .nav-menu {
-        position: fixed;
-        left: -100%;
-        top: 70px;
-        flex-direction: column;
-        background: white;
-        width: 100%;
-        text-align: center;
-        transition: 0.3s;
-        box-shadow: 0 10px 27px rgba(0,0,0,0.05);
-        padding: 2rem 0;
-        gap: 0;
-    }
-
-    .nav-menu.active {
-        left: 0;
-    }
-
-    .nav-link {
-        display: block;
-        padding: 1rem;
-        border-bottom: 1px solid var(--border);
-        border-radius: 0;
-    }
-
-    .nav-link:hover, .nav-link.active {
-        background: var(--primary);
-        color: white;
-    }
-
-    .hamburger.active span:nth-child(1) {
-        transform: rotate(-45deg) translate(-5px, 6px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-        transform: rotate(45deg) translate(-5px, -6px);
-    }
-}
-
-.main-content {
-    margin-top: 80px; /* Account for fixed navbar */
-}
-        .main-content { max-width: 1400px; margin: 1rem auto; padding: 0 1rem; }
+        
+        /* Navigation */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nav-logo h1 { color: var(--primary); font-size: 1.2rem; }
+        .nav-menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .nav-link { text-decoration: none; color: var(--text); padding: 0.5rem 0.75rem; border-radius: 4px; transition: all 0.3s ease; font-size: 0.9rem; }
+        .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+        .hamburger { display: none; flex-direction: column; cursor: pointer; padding: 0.25rem; }
+        .hamburger span { width: 25px; height: 3px; background: var(--primary); margin: 3px 0; transition: 0.3s; border-radius: 2px; }
+        
+        .main-content { max-width: 1400px; margin: 5rem auto 2rem; padding: 0 1rem; }
         .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
         .financial-overview, .quick-actions { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.5rem 0; }
@@ -139,6 +51,7 @@
         .negative { color: var(--danger); }
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; text-align: center; font-size: 0.9rem; }
         .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
         .btn-secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
         .recent-activities { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .activity-list { margin-top: 1rem; }
@@ -151,43 +64,57 @@
         table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
         th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         th { background: var(--secondary); font-weight: 600; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 5% auto; padding: 1.5rem; border-radius: 8px; width: 95%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
+        
+        /* Mobile Styles */
         @media (max-width: 768px) {
+            .hamburger { display: flex; }
+            .nav-menu { position: fixed; left: -100%; top: 70px; flex-direction: column; background: white; width: 100%; text-align: center; transition: 0.3s; box-shadow: 0 10px 27px rgba(0,0,0,0.05); padding: 2rem 0; gap: 0; }
+            .nav-menu.active { left: 0; }
+            .nav-link { display: block; padding: 1rem; border-bottom: 1px solid var(--border); border-radius: 0; }
+            .nav-link:hover, .nav-link.active { background: var(--primary); color: white; }
+            .hamburger.active span:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+            .hamburger.active span:nth-child(2) { opacity: 0; }
+            .hamburger.active span:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
             .dashboard-grid { grid-template-columns: 1fr; }
             .stats-grid { grid-template-columns: 1fr; }
             .quick-actions-grid { grid-template-columns: 1fr; }
-            .nav-menu { justify-content: center; }
-            .financial-stats table { font-size: 0.8rem; }
-            .activity-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .financial-overview, .quick-actions, .recent-activities { padding: 1rem; }
+            .main-content { margin-top: 5rem; padding: 0 0.5rem; }
         }
         @media (max-width: 480px) {
             .nav-logo h1 { font-size: 1rem; }
-            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
-            .main-content { padding: 0 0.5rem; }
-            .financial-overview, .quick-actions, .recent-activities { padding: 1rem; }
+            .nav-link { padding: 0.8rem; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-    <div class="nav-container">
-        <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
-        
-        <div class="nav-menu" id="nav-menu">
-    <a href="index.html" class="nav-link">Dashboard</a>
-            <a href="journal-entries.html" class="nav-link">Journal</a>
-            <a href="general-ledger.html" class="nav-link">Ledger</a>
-            <a href="invoices.html" class="nav-link">Sales</a>
-            <a href="expenses.html" class="nav-link">Expenses</a>
-            <a href="inventory.html" class="nav-link">Inventory</a>
-            <a href="financial-reports.html" class="nav-link">Reports</a>
-        </div>
+        <div class="nav-container">
+            <div class="nav-logo"><h1>🏥 MediSupply Accounting</h1></div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="journal-entries.html" class="nav-link">Journal</a>
+                <a href="general-ledger.html" class="nav-link">Ledger</a>
+                <a href="invoices.html" class="nav-link">Sales</a>
+                <a href="expenses.html" class="nav-link">Expenses</a>
+                <a href="inventory.html" class="nav-link">Inventory</a>
+                <a href="financial-reports.html" class="nav-link">Reports</a>
+            </div>
 
-        <div class="hamburger" id="hamburger">
-            <span></span>
-            <span></span>
-            <span></span>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
-    </div>
     </nav>
 
     <main class="main-content">
@@ -197,19 +124,19 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>Cash Balance</h3>
-                        <div class="amount" id="cash-balance">₦0.00</div>
+                        <div class="amount" id="cash-balance">₦5,000,000</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Accounts Receivable</h3>
-                        <div class="amount" id="accounts-receivable">₦0.00</div>
+                        <h3>Owner's Capital</h3>
+                        <div class="amount" id="capital-balance">₦5,000,000</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Accounts Payable</h3>
-                        <div class="amount" id="accounts-payable">₦0.00</div>
+                        <h3>Total Revenue</h3>
+                        <div class="amount" id="total-revenue">₦0</div>
                     </div>
                     <div class="stat-card">
-                        <h3>Net Profit</h3>
-                        <div class="amount" id="net-profit">₦0.00</div>
+                        <h3>Total Expenses</h3>
+                        <div class="amount" id="total-expenses">₦0</div>
                     </div>
                 </div>
 
@@ -218,15 +145,15 @@
                     <table>
                         <tr>
                             <td>Revenue</td>
-                            <td id="monthly-revenue">₦0.00</td>
+                            <td id="monthly-revenue">₦0</td>
                         </tr>
                         <tr>
                             <td>Expenses</td>
-                            <td id="monthly-expenses">₦0.00</td>
+                            <td id="monthly-expenses">₦0</td>
                         </tr>
                         <tr>
                             <td>Net Income</td>
-                            <td id="monthly-net-income">₦0.00</td>
+                            <td id="monthly-net-income">₦0</td>
                         </tr>
                     </table>
                 </div>
@@ -265,8 +192,61 @@
         </div>
     </main>
 
+    <!-- Reset Data Modal -->
+    <div id="reset-modal" class="modal">
+        <div class="modal-content">
+            <span style="float: right; font-size: 1.5rem; cursor: pointer;" onclick="hideResetModal()">&times;</span>
+            <h3 style="color: var(--danger);">⚠️ Reset All Data</h3>
+            <p><strong>Warning:</strong> This will permanently delete ALL your data including:</p>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                <li>All expenses and sales records</li>
+                <li>All journal entries and ledger data</li>
+                <li>All inventory items</li>
+                <li>All financial reports</li>
+            </ul>
+            <p>This action cannot be undone!</p>
+            <div class="form-group">
+                <label for="confirm-reset">Type "RESET" to confirm:</label>
+                <input type="text" id="confirm-reset" placeholder="Type RESET here">
+            </div>
+            <div class="form-actions" style="margin-top: 1rem; text-align: right;">
+                <button type="button" class="btn-secondary" onclick="hideResetModal()">Cancel</button>
+                <button type="button" class="btn-danger" onclick="confirmReset()" id="reset-btn" disabled>Reset All Data</button>
+            </div>
+        </div>
+    </div>
+
     <script src="firebase-config.js"></script>
     <script>
+        // Hamburger menu functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.getElementById('hamburger');
+            const navMenu = document.getElementById('nav-menu');
+
+            hamburger.addEventListener('click', function() {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                });
+            });
+
+            // Load initial data
+            loadDashboardData();
+            addResetButton();
+
+            // Add reset confirmation input listener
+            document.getElementById('confirm-reset').addEventListener('input', function() {
+                document.getElementById('reset-btn').disabled = this.value !== 'RESET';
+            });
+        });
+
         function loadDashboardData() {
             loadAccountBalances();
             loadMonthlySummary();
@@ -274,33 +254,25 @@
         }
 
         function loadAccountBalances() {
+            // Cash account
             db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
                 .doc('1001')
                 .get()
                 .then(doc => {
                     if (doc.exists) {
-                        document.getElementById('cash-balance').textContent = 
-                            '₦' + (doc.data().balance || 0).toLocaleString();
+                        const balance = doc.data().balance || 5000000;
+                        document.getElementById('cash-balance').textContent = '₦' + balance.toLocaleString();
                     }
                 });
 
+            // Capital account
             db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
-                .doc('1101')
+                .doc('3001')
                 .get()
                 .then(doc => {
                     if (doc.exists) {
-                        document.getElementById('accounts-receivable').textContent = 
-                            '₦' + (doc.data().balance || 0).toLocaleString();
-                    }
-                });
-
-            db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts')
-                .doc('2001')
-                .get()
-                .then(doc => {
-                    if (doc.exists) {
-                        document.getElementById('accounts-payable').textContent = 
-                            '₦' + (doc.data().balance || 0).toLocaleString();
+                        const balance = doc.data().balance || 5000000;
+                        document.getElementById('capital-balance').textContent = '₦' + balance.toLocaleString();
                     }
                 });
         }
@@ -318,6 +290,7 @@
             let monthlyRevenue = 0;
             let monthlyExpenses = 0;
 
+            // Calculate revenue from invoices
             db.collection('companies').doc(COMPANY_ID).collection('invoices')
                 .where('date', '>=', startOfMonth)
                 .where('date', '<=', endOfMonth)
@@ -327,6 +300,7 @@
                         monthlyRevenue += doc.data().totalAmount || 0;
                     });
                     
+                    // Calculate expenses from journal entries
                     db.collection('companies').doc(COMPANY_ID).collection('journal_entries')
                         .where('date', '>=', startOfMonth)
                         .where('date', '<=', endOfMonth)
@@ -336,7 +310,7 @@
                                 const entry = doc.data();
                                 entry.lineItems.forEach(item => {
                                     if (item.accountType === 'expense') {
-                                        monthlyExpenses += item.amount;
+                                        monthlyExpenses += item.amount || 0;
                                     }
                                 });
                             });
@@ -347,8 +321,10 @@
                             document.getElementById('monthly-expenses').textContent = '₦' + monthlyExpenses.toLocaleString();
                             document.getElementById('monthly-net-income').textContent = '₦' + netIncome.toLocaleString();
                             document.getElementById('monthly-net-income').className = netIncome >= 0 ? 'positive' : 'negative';
-                            document.getElementById('net-profit').textContent = '₦' + netIncome.toLocaleString();
-                            document.getElementById('net-profit').className = netIncome >= 0 ? 'positive' : 'negative';
+                            
+                            // Update summary cards
+                            document.getElementById('total-revenue').textContent = '₦' + monthlyRevenue.toLocaleString();
+                            document.getElementById('total-expenses').textContent = '₦' + monthlyExpenses.toLocaleString();
                         });
                 });
         }
@@ -375,7 +351,7 @@
                         
                         const date = entry.date.toDate().toLocaleDateString();
                         const description = entry.description || 'Journal Entry';
-                        const amount = entry.lineItems.reduce((sum, item) => sum + item.amount, 0);
+                        const amount = entry.lineItems.reduce((sum, item) => sum + (item.amount || 0), 0);
                         
                         activityItem.innerHTML = '<div><strong>' + description + '</strong><div style="color: var(--text-light); font-size: 0.8rem;">' + date + '</div></div><div style="font-weight: bold;">₦' + amount.toLocaleString() + '</div>';
                         activitiesContainer.appendChild(activityItem);
@@ -383,45 +359,85 @@
                 });
         }
 
-        document.addEventListener('DOMContentLoaded', loadDashboardData);
-   // Hamburger menu functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const hamburger = document.getElementById('hamburger');
-    const navMenu = document.getElementById('nav-menu');
-
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
-
-        // Close menu when clicking on a link
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
-            });
-        });
-
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
+        // Reset functionality
+        function addResetButton() {
+            if (!document.getElementById('reset-data-btn')) {
+                const resetBtn = document.createElement('button');
+                resetBtn.id = 'reset-data-btn';
+                resetBtn.className = 'btn btn-danger';
+                resetBtn.style.position = 'fixed';
+                resetBtn.style.bottom = '20px';
+                resetBtn.style.right = '20px';
+                resetBtn.style.zIndex = '1000';
+                resetBtn.textContent = '🔄 Reset Data';
+                resetBtn.onclick = showResetModal;
+                document.body.appendChild(resetBtn);
             }
-        });
-    }
-
-    // Set active link based on current page
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-        const linkPage = link.getAttribute('href');
-        if (linkPage === currentPage) {
-            link.classList.add('active');
         }
-    });
-}); </script>
+
+        function showResetModal() {
+            document.getElementById('reset-modal').style.display = 'block';
+            document.getElementById('confirm-reset').value = '';
+            document.getElementById('reset-btn').disabled = true;
+        }
+
+        function hideResetModal() {
+            document.getElementById('reset-modal').style.display = 'none';
+        }
+
+        function confirmReset() {
+            resetAllData();
+        }
+
+        async function resetAllData() {
+            try {
+                // Delete all expenses
+                const expensesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('expenses').get();
+                const expenseDeletes = expensesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all journal entries
+                const journalSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('journal_entries').get();
+                const journalDeletes = journalSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all inventory
+                const inventorySnapshot = await db.collection('companies').doc(COMPANY_ID).collection('inventory').get();
+                const inventoryDeletes = inventorySnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Delete all invoices
+                const invoicesSnapshot = await db.collection('companies').doc(COMPANY_ID).collection('invoices').get();
+                const invoiceDeletes = invoicesSnapshot.docs.map(doc => doc.ref.delete());
+                
+                // Wait for all deletions to complete
+                await Promise.all([...expenseDeletes, ...journalDeletes, ...inventoryDeletes, ...invoiceDeletes]);
+                
+                // Reset chart of accounts with 5 million seed capital
+                const cashAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('1001');
+                const capitalAccountRef = db.collection('companies').doc(COMPANY_ID).collection('chart_of_accounts').doc('3001');
+                
+                await cashAccountRef.set({
+                    code: '1001',
+                    name: 'Cash',
+                    type: 'asset',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                await capitalAccountRef.set({
+                    code: '3001',
+                    name: 'Owner\'s Capital',
+                    type: 'equity',
+                    balance: 5000000,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                hideResetModal();
+                alert('All data reset successfully! ₦5,000,000 seed capital has been set.');
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error resetting data:', error);
+                alert('Error resetting data: ' + error.message);
+            }
+        }
+    </script>
 </body>
-                      </html>
+    </html>
